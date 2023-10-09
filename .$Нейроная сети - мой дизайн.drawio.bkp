@@ -1,0 +1,46 @@
+<mxfile host="Electron" modified="2023-10-08T11:24:43.870Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.0.0 Chrome/114.0.5735.289 Electron/25.8.3 Safari/537.36" etag="0qKq35vkJiS5J1oUYY3X" version="22.0.0" type="device">
+  <diagram name="Страница — 1" id="c6_snsGRa9U0U3_Kuej6">
+    <mxGraphModel dx="1434" dy="854" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3300" pageHeight="4681" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-1" value="Input Vector" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="1">
+          <mxGeometry x="150" y="290" width="150" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-2" value="x" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-1">
+          <mxGeometry x="35" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-3" value="x" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-1">
+          <mxGeometry x="35" y="150" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-4" value="x" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-1">
+          <mxGeometry x="35" y="250" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-5" value="x" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-1">
+          <mxGeometry x="35" y="350" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-6" value="Weights Vector" style="swimlane;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="1">
+          <mxGeometry x="360" y="240" width="120" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-8" value="w" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-6">
+          <mxGeometry x="20" y="50" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-9" value="w" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-6">
+          <mxGeometry x="20" y="150" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-10" value="w" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-6">
+          <mxGeometry x="20" y="250" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-11" value=". . ." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=19;fontStyle=1;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-6">
+          <mxGeometry x="25" y="350" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-12" value="w" style="rhombus;whiteSpace=wrap;html=1;fontFamily=Lucida Console;" vertex="1" parent="vI1Z0ILHkzx01Zf5hE1t-6">
+          <mxGeometry x="20" y="400" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vI1Z0ILHkzx01Zf5hE1t-7" value="Neuron Vector" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="240" width="200" height="520" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
