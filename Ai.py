@@ -1,17 +1,15 @@
-# Algorithm By RoJQ
-import math
+import functools
+import gzip
+import base64
 import typing
-import abstract_class
-import PIL.Image
-import gzip
-import struct
-import gzip
-import struct
+
 import pandas as pd
 import numpy as np
+import struct
+VOID_FPOINT = 1000.144# 1000.144  - Число которое сигнализирует о незаполнености нейрона
 
-# load compressed MNIST gz files and return pandas dataframe of numpy arrays
-def load_data(filename, label=False):
+
+def load_data(filename, label=False) -> np.ndarray:
     with gzip.open(filename) as gz:
         gz.read(4)
         n_items = struct.unpack('>I', gz.read(4))
@@ -23,151 +21,107 @@ def load_data(filename, label=False):
         else:
             res = np.frombuffer(gz.read(n_items[0]), dtype=np.uint8)
             res = res.reshape(n_items[0], 1)
-    return pd.DataFrame(res)
+    return res
 
 
-class NeuronConnection(abstract_class.AbstractConnection):
-    def __init__(self, main_neuron: abstract_class.AbstractNeuron, sub_neurons: list[abstract_class.AbstractNeuron], weights: list[float]):
-        super().__init__(main_neuron, sub_neurons, weights)
+class InputData:
+    def __init__(self, path_to_image_mnist, path_to_label_mnist):
+        self.__image_data = load_data(filename=path_to_image_mnist, label=False)
+        self.__label_data = load_data(filename=path_to_label_mnist, label=True)
+
+    @property
+    def get_output(self):
+        return self.__label_data
+
+    @property
+    def get_input(self):
+        return self.__image_data
 
 
-class Neuron(abstract_class.AbstractNeuron):
-    def __init__(self, active_func: typing.Callable, index_in_site: int, weights: list, index_in_layer: int):
-        """
-        Данная функция создает нейрон который будет использовать нейроная сеть..
-        :param active_func: Функция которой будет активироваться нейрон должна принимать 1 аргумент
-        :param index_in_site: Индекс слоя в сети
-        :param weights: Веса которые с данным Нейроном связаны (частный случай - входной нейрон)
-        :param index_in_layer: Индекс нейрона в слое
-        """
-        super().__init__(active_func, index_in_site, weights, index_in_layer)
+class NeuronSite:
+    def __init__(self):
+        self.__hidden_layers: list[np.ndarray, ...] = []
+        self.__weights_layers: list[np.ndarray, ...] = []
+        self.__output_basic: None | np.ndarray = None
+        self.input_layer_len = 784
 
-    def set_connection(self, back_layer: abstract_class.AbstractNeuronLayer):
-        self.connection = NeuronConnection(self, back_layer.get_neuron_list, self.weights)
-        self.connection: NeuronConnection
+    def generate_neuron_site(self, hidden_layers_count: int, neuron_in_layer: int, max_weights: float, output_layer: np.ndarray):
+        previous_layer_length = self.input_layer_len  # Кол-во нейронов в предыдущем слое
+        for i in range(hidden_layers_count):
+            weights_layers = self.generate_random_weights(max=max_weights, count=(neuron_in_layer * previous_layer_length))
+            hidden_layer = np.array([VOID_FPOINT for i in range(neuron_in_layer)])
+            previous_layer_length = len(hidden_layer)
+            self.__weights_layers.append(weights_layers)
+            self.__hidden_layers.append(hidden_layer)
 
-    def set_layer(self, layer: abstract_class.AbstractNeuronLayer):
-        """
-        Устанавливает слой для нейрона
-        :param layer:
-        :return:
-        """
-        layer.add_neuron(self)
+        self.__output_basic = output_layer
 
+    @property
+    def weight_layers(self) -> list[np.ndarray, ...]:
+        return self.__weights_layers
 
-class NeuronOutputLayer(abstract_class.AbstractNeuronLayer):
-    def __init__(self, counts_of_results: int):
-        super().__init__(activate_function=lambda : "None", count_of_neuron=counts_of_results, index_in_site=-1)
+    @property
+    def neuron_layers(self) -> list[np.ndarray, ...]:
+        return self.__hidden_layers
 
-    @classmethod
-    def chain_initialization(cls, neuron_count: int, old_layer: abstract_class.AbstractNeuronLayer) -> tuple[abstract_class.AbstractNeuronLayer, int]:
-        """
-        Данный метод запускает ципную инициализацию слоев.
-        :param weight_range:
-        :param neuron_count:
-        :param index_in_site:
-        :param activate_function:
-        :param old_layer:
-        :return: Возвращает сам слой и его индекс
-        """
-        new_layer_index = old_layer.index_in_site + 1
-        layer = cls(counts_of_results=neuron_count, index_on_site=new_layer_index)
-        return layer, new_layer_index
+    def get_hidden_layer(self, index: int) -> list[np.ndarray, np.ndarray]:
+        if index > len(self.__weights_layers):
+            return None
+        return [self.__hidden_layers[index], self.__weights_layers[index]]
 
-
-class NeuronInputLayer(abstract_class.AbstractNeuronLayer):
-    def __init__(self, count_of_neuron: int, data_input: pd.DataFrame):
-        super().__init__(activate_function=lambda: "None", count_of_neuron=count_of_neuron, index_in_site=0)
-
-    @classmethod
-    def chain_initialization(cls, neuron_count, index_in_site: int = None, activate_function: typing.Callable = None) -> tuple[abstract_class.AbstractNeuronLayer, int]:
-        """
-        Данный метод запускает ципную инициализацию слоев.
-        :param neuron_count:
-        :param index_in_site:
-        :param activate_function:
-        :return: Возвращает сам слой и его индекс
-        """
-        layer = cls(count_of_neuron=neuron_count)
-        return layer, layer.index_in_site
-
-    def initialize_neurons(self):
-        for index_neuron in range(self.count_of_neuron):
-            weight = []  # их нет т.к. слой входной и не имеет других весов
-            neuron = Neuron(active_func=self.activate_function, index_in_site=self.index_in_site, index_in_layer=index_neuron, weights=weight)
-            # here init value
-            neuron.set_layer(self)
-
-
-class NeuronHiddenLayer(abstract_class.AbstractNeuronLayer):
-    def __init__(self, weight_range: tuple, index_in_site: int, count_of_neuron: int, activate_function: typing.Callable, old_layer: abstract_class.AbstractNeuronLayer):
-        super().__init__( index_in_site = index_in_site, count_of_neuron= count_of_neuron, activate_function= activate_function)
-
-    def __init__random_weights(self):
-        pass
-
-    @classmethod
-    def chain_initialization(cls, weight_range: tuple[int, int], neuron_count: int, activate_function: typing.Callable, old_layer: abstract_class.AbstractNeuronLayer) -> tuple[abstract_class.AbstractNeuronLayer, int]:
-        """
-        Данный метод запускает ципную инициализацию слоев.
-        :param weight_range:
-        :param neuron_count:
-        :param index_in_site:
-        :param activate_function:
-        :param old_layer:
-        :return: Возвращает сам слой и его индекс
-        """
-        new_layer_index = old_layer.index_in_site + 1
-        layer = cls(weight_range, new_layer_index, neuron_count, activate_function, old_layer)
-        layer.__init__random_weights()
-        return layer, new_layer_index
-
-
-class RqBasicNeuronSite:
-    def __init__(self, dataImages: pd.DataFrame, dataLabels: pd.DataFrame, counts_hidden_layers: int):
-        self._image_data = dataImages
-        self._labels_data = dataLabels
-        self.__input_len = self._image_data.count("columns", True)[0]
-        self._counts_of_layers = counts_hidden_layers
-        self.__weights_range = (-10, 10)
-        self.input_layer = NeuronInputLayer(count_of_neuron=self.__input_len, data_input=self._image_data)
-        self.hidden_layers = []
-        self.output_layer = NeuronOutputLayer(10)
-
-    def unit_next_level(self, neuron_value: pd.DataFrame):
-        """
-        Определение слудующего слоя
-        :param neuron_value:
-        :return:
-        """
-        pass
-
-    def create_layer(self, count_weights: int):
-        """
-        Создает нейроный слой..
-        :param count_weights: Количество весов
-        :return:
-        """
-        pass
+    @property
+    def output_layer(self) -> np.ndarray:
+        return self.__output_basic
 
     @staticmethod
-    def sinusoid(value: float):
-        return 1 / (1 + math.e**-value)
+    def generate_random_weights(max: float, count: int) -> np.ndarray:
+        weights = [np.random.random() * max for i in range(count)]
+        weights = np.array(weights)
+        return weights
 
-    def override_weights(self):
-        """
-        Переопределние текущих весов...
-        :return:
-        """
+    def reverse_distribution(self, layer_index, neuron_index) -> float:
+        pass
+
+    def learn_script(self, required_error_value: float) -> float:
+        pass
+
+    def weight_override(self) -> bool:
+        pass
+
+    def get_result(self) -> np.ndarray:
+        pass
+
+    def shot(self, input_data: np.ndarray) -> np.ndarray:
         pass
 
 
-def pull_data():
-    imageData = load_data("ai_tests/train-images-idx3-ubyte.gz")
-    labelData = load_data("ai_tests/train-labels-idx1-ubyte.gz", True)
-    print(list(imageData.iloc[2]))
-    return imageData, labelData
+def test_1():
+    result = NeuronSite.generate_random_weights(5, 10)  # worked
+    print(result)
+
+
+def test_2():  # worked
+    output_basic = np.array([VOID_FPOINT for i in range(10)])
+    el = NeuronSite()
+
+    before = (el.weight_layers, el.hidden_layers, el.output_layer)
+    print("Before")
+    for i in range(len(before[0])):
+        print(f"Веса: {before[0][i]}, \n Кол-во нейронов: {len(before[0][i])}")
+        print(f"Значения нейронов: {before[1][i]}, \n Кол-во нейронов: {len(before[1][i])}")
+    else:
+        print("Веса, Нейроны - не указаны")
+    print(f"Выходной слой: {before[2]}")
+
+    el.generate_neuron_site(4, 5, 7, output_basic)
+
+    after = (el.weight_layers, el.hidden_layers, el.output_layer)
+    print("After")
+    for i in range(len(after[0])):
+        print(f"Веса: {after[0][i]}, \n Кол-во весов: {len(after[0][i])}")
+        print(f"Значения нейронов: {after[1][i]}, \n Кол-во нейронов: {len(after[1][i])}")
+    print(f"Выходной слой: {after[2]}")
+
 
 if __name__ == '__main__':
-    datas = pull_data()
-    RqBasicNeuronSite(datas[0], datas[1], 2)
+    test_2()
